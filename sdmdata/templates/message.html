@@ -1,0 +1,21 @@
+{% extends "framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">message</li>
+    </ol>
+{% endblock %}
+{% block body %}
+<div class="text-center">
+    {% if result %}
+    operate is done!
+    {% else %}
+    operate is failed!
+    {% endif %}
+</div>
+<script>
+    $(document).ready(function(){
+        setTimeout('window.location.href="{{ url|default("/") }}";', 1000);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Import Species</li>
+        <li class="active">Import Species CSV</li>
+    </ol>
+{% endblock %}
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {% if csv_file %}
+                Click <a href="/import-species-csv-result">here</a> to import csv file into species name list
+            {% else %}
+                There no csv file upload or csv already imported to species name list
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+

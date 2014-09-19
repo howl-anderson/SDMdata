@@ -1,0 +1,22 @@
+{% extends "framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Import Species</li>
+        <li class="active">Upload Species CSV</li>
+    </ol>
+{% endblock %}
+{% block body %}
+<div class="row">
+    <div style="width:500px;margin:20px auto 0px auto;">
+    <div>Upload data csv to server then you can import it!</div>
+        <form class="form-inline" role="form" enctype="multipart/form-data" method="POST" action="">
+            <div class="form-group">
+                <label class="sr-only" for="exampleInputEmail2">Species CSV File:</label>
+                <input type="file" id="exampleInputEmail2" name="species_file">
+            </div>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

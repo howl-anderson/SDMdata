@@ -1,0 +1,17 @@
+{% extends "framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Export Data</li>
+        <li class="active">Export Occurrence Data as CSV</li>
+    </ol>
+{% endblock %}
+{% block body %}
+<a href="{{ file_url }}">Download link</a>
+<script>
+    $(document).ready(function(){
+        $("#nav-download").attr("class", "active");
+        $("#nav-download a").attr("disabled",true);
+    });
+</script>
+{% endblock %}

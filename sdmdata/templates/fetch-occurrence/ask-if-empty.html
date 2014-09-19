@@ -1,0 +1,20 @@
+{% extends "framework.html" %}
+{% block body %}
+<div class="text-center">
+    <p>
+        Are you sure empty the species list?
+    </p>
+    <p>
+        <a href="/do-empty-occurrence" class="btn btn-primary btn-lg active" role="button">Yes</a>
+        <a href="/" class="btn btn-default btn-lg active" role="button">No</a>
+    </p>
+</div>
+<script>
+    $(document).ready(function(){
+        $("#collapse-collect-occurrence").addClass("in");
+
+        $("#nav-empty-occurrence").attr("class", "active");
+        $("#nav-empty-occurrence a").attr("disabled",true);
+    });
+</script>
+{% endblock %}

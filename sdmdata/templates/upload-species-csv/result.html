@@ -1,0 +1,22 @@
+{% extends "framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Import Species</li>
+        <li class="active">Upload Species CSV</li>
+    </ol>
+{% endblock %}
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {% if upload_result %}
+                CSV file upload success!
+            {% else %}
+                File upload failed!
+                {% if not encode_ascii %}
+                    CSV file must encode in ascii!
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

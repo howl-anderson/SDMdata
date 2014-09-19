@@ -1,0 +1,42 @@
+{% extends "framework.html" %}
+{% block header %}
+<link href="/static/js/jquery.handsontable.full.css" rel="stylesheet">
+<script src="/static/js/jquery.handsontable.full.js"></script>
+{% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li class="active">Check Species</li>
+    <li class="active">View Checked Species Name</li>
+</ol>
+{% endblock %}
+{% block body %}
+<div class="panel panel-default">
+    <div class="panel-body">
+        <h5>click <a href="/export-checked-species-name-data">here</a> download as CSV file</h5>
+    </div>
+</div>
+
+<div class="handsontable" id="example">
+</div>
+<div class="alert alert-info" role="alert" id="message" style="display:none;">This list is empty!</div>
+
+<script>
+        $(document).ready(function(){
+            $.getJSON("/checked-species-name-data", function(data){
+                if (data.length) {
+                    $('#example').handsontable({
+                      data: data,
+                      minSpareRows: 0,
+                      colHeaders: true,
+                      contextMenu: true,
+                      colHeaders: ["Species name", "Kingdom", "Phylum", "Class", "Order", "Superfamily", "Family", "Genus", "Scientific Name", "Infraspecific Taxon"]
+                    });
+                } else {
+                    $("#message").css("display","block");
+                }
+            });
+        });
+
+</script>
+{% endblock %}

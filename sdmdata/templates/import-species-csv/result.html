@@ -1,0 +1,18 @@
+{% extends "framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Import Species</li>
+        <li class="active">Import Species CSV</li>
+    </ol>
+{% endblock %}
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+            CSV file:
+            Success imported {{ imported_count }} species name;
+            Species name with duplicate: {{ duplicate_count }};
+        </div>
+    </div>
+{% endblock %}
+

@@ -1,0 +1,34 @@
+{% extends "framework.html" %}
+{% block header %}
+<link href="/static/js/jquery.handsontable.full.css" rel="stylesheet">
+<script src="/static/js/jquery.handsontable.full.js"></script>
+{% endblock %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Collect Occurrence</li>
+        <li class="active">View Species cross check result</li>
+    </ol>
+{% endblock %}
+{% block body %}
+<div class="handsontable" id="example">
+</div>
+<div class="alert alert-info" role="alert" id="message" style="display:none;">This list is empty!</div>
+<script>
+    $(document).ready(function(){
+        $.getJSON("/cross-check-result", function(data){
+            if (data.length) {
+                $('#example').handsontable({
+                  data: data,
+                  minSpareRows: 0,
+                  colHeaders: true,
+                  contextMenu: true,
+                  colHeaders: ["Species name", "Correct", "Incorrect", "unknown_country"]
+                });
+            } else {
+                    $("#message").css("display","block");
+            }
+        });
+    });
+</script>
+{% endblock %}

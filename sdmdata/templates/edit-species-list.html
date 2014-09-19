@@ -1,0 +1,35 @@
+{% extends "framework.html" %}
+{% block header %}
+    <link href="/static/js/jquery.handsontable.full.css" rel="stylesheet">
+    <script src="/static/js/jquery.handsontable.full.js"></script>
+{% endblock %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Import Species</li>
+        <li class="active">View Species List</li>
+    </ol>
+{% endblock %}
+{% block body %}
+    <div class="handsontable" id="example">
+    </div>
+    <div class="alert alert-info" role="alert" id="message" style="display:none;">This list is empty!</div>
+    <script>
+        $(document).ready(function(){
+            $.getJSON("/species-list-data", function(data){
+                console.log(data.length);
+                if (data.length) {
+                    $('#example').handsontable({
+                      data: data,
+                      minSpareRows: 0,
+                      colHeaders: true,
+                      contextMenu: true,
+                      colHeaders: ["Species name"]
+                    });
+                } else {
+                    $("#message").css("display","block");
+                }
+            });
+        });
+    </script>
+{% endblock %}
