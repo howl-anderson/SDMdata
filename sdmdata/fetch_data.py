@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+# TODO: this function design for CLI, may removed later
 
 import click
 import csv

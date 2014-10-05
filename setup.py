@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='sdmdata',
@@ -16,5 +16,9 @@ setup(
     'gdal',
     'requests',
     'gunicorn',
+    'tablib',
+    "flask-login",
+    "click",
+    "chardet"
     ]
 )

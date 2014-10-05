@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+
 import os
 import sys
 import time
@@ -8,36 +9,48 @@ from signal import SIGTERM
 
 
 class Daemon:
-    def __init__(self, pidfile, stderr='/home/howl/daemon_err.log', stdout='/home/howl/daemon_out.log', stdin='/dev/null'):
+    def __init__(self, work_path, daemon_name):
+        pidfile=os.path.join(work_path, "workspace", daemon_name + "_daemon.pid")
+        stderr=os.path.join(work_path, "workspace", daemon_name + '_daemon_err.log')
+        stdout=os.path.join(work_path, "workspace", daemon_name + '_daemon_out.log')
+        # TODO: cross platform issue
+        stdin='/dev/null'
+
+        self.work_path = work_path
+        self.daemon_name = daemon_name
+
+        self._init_variable(pidfile, stderr, stdout, stdin)
+
+    def _init_variable(self, pidfile, stderr, stdout, stdin):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
-        self.pidfile = pidfile
+        self.pid_file = pidfile
 
     def _daemonize(self):
-        #脱离父进程
+        # fork from original process
         try:
             pid = os.fork()
             if pid > 0:
                 sys.exit(0)
         except OSError, e:
-            sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
+            sys.stderr.write("Fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
 
-        #脱离终端
+        # split from terminal
         os.setsid()
-        #修改当前工作目录
+        # change current work directory
         os.chdir("/")
-        #重设文件创建权限
+        # setup file create mask
         os.umask(0)
 
-        #第二次fork，禁止进程重新打开控制终端
+        # second time to fork, process will not open terminal
         try:
             pid = os.fork()
             if pid > 0:
                 sys.exit(0)
         except OSError, e:
-            sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
+            sys.stderr.write("Fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
 
         sys.stdout.flush()
@@ -45,34 +58,39 @@ class Daemon:
         si = file(self.stdin, 'r')
         so = file(self.stdout, 'a+')
         se = file(self.stderr, 'a+', 0)
-        #重定向标准输入/输出/错误
+
+        # redirect stdin/stdout/stderr
         os.dup2(si.fileno(), sys.stdin.fileno())
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
 
-        #注册程序退出时的函数，即删掉pid文件
-        atexit.register(self.delpid)
+        # register a function to remove pdf file when process exit
+        atexit.register(self.delete_pid)
         pid = str(os.getpid())
-        file(self.pidfile,'w+').write("%s\n" % pid)
 
-    def delpid(self):
-        os.remove(self.pidfile)
+        # write pid
+        fd = file(self.pid_file, 'w+')
+        fd.write("%s\n" % pid)
+        fd.close()
+
+    def delete_pid(self):
+        os.remove(self.pid_file)
 
     def start(self):
         """
         Start the daemon
         """
-        # Check for a pidfile to see if the daemon already runs
+        # Check for a pid file to see if the daemon already runs
         try:
-            pf = file(self.pidfile,'r')
+            pf = file(self.pid_file, 'r')
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
             pid = None
 
         if pid:
-            message = "pidfile %s already exist. Daemon already running?\n"
-            sys.stderr.write(message % self.pidfile)
+            message = "Pid file %s already exist. Daemon already running?\n"
+            sys.stderr.write(message % self.pid_file)
             sys.exit(1)
 
         # Start the daemon
@@ -80,18 +98,19 @@ class Daemon:
         self._run()
 
     def stop(self):
-        # Get the pid from the pidfile
+        # Get the pid from the pid file
         try:
-            pf = file(self.pidfile,'r')
+            pf = file(self.pid_file, 'r')
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
             pid = None
 
         if not pid:
-            message = "pidfile %s does not exist. Daemon not running?\n"
-            sys.stderr.write(message % self.pidfile)
-            return # not an error in a restart
+            message = "Pid file %s does not exist. Daemon not running?\n"
+            sys.stderr.write(message % self.pid_file)
+            return None  # not an error in a restart
+
         # Try killing the daemon process
         try:
             while 1:
@@ -100,8 +119,8 @@ class Daemon:
         except OSError, err:
             err = str(err)
             if err.find("No such process") > 0:
-                if os.path.exists(self.pidfile):
-                    os.remove(self.pidfile)
+                if os.path.exists(self.pid_file):
+                    os.remove(self.pid_file)
             else:
                 print str(err)
                 sys.exit(1)
@@ -116,7 +135,7 @@ class Daemon:
         """
         # Check for a pidfile to see if the daemon already runs
         try:
-            pf = file(self.pidfile,'r')
+            pf = file(self.pid_file, 'r')
             pid = int(pf.read().strip())
             pf.close()
         except IOError:

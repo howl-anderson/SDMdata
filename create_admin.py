@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 
+# import build-in library
 import hashlib
+from argparse import ArgumentParser
 
 from sdmdata.sdmdata.db import create_session
 from sdmdata.sdmdata.db import User
 
+
+parser = ArgumentParser(description="Create admin account")
+parser.add_argument("password", default="admin", help="password for admin, default password is 'admin'", nargs="?")
+args = parser.parse_args()
+
 username = "admin"
-password = "admin"
+password = args.password
 hash_obj = hashlib.md5()
 hash_obj.update(password)
 hashed_password = hash_obj.hexdigest()

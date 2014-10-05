@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+# TODO: this function design for CLI, may removed later
 
 import click
 from sdmdata.export_data_main import export_data
+
 
 @click.command()
 @click.argument('target_dir', type=click.Path(exists=True))

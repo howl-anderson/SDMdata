@@ -79,7 +79,7 @@ def create_session():
     engine = create_engine(db_source, encoding="utf-8", echo=False)
     database_base.metadata.create_all(engine)
 
-    Species_session = sessionmaker(bind=engine)
-    Species_session.configure(bind=engine)
-    species_session = Species_session()
+    session_object = sessionmaker(bind=engine)
+    session_object.configure(bind=engine)
+    species_session = session_object()
     return species_session

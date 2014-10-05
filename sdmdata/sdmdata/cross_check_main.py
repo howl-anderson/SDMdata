@@ -21,8 +21,8 @@ def cross_check(work_dir="."):
         feature_name = dir_name.split("_")[0]
         shape_file = os.path.join(base_dir, dir_name + "/" + dir_name + "0.shp")
         driver = ogr.GetDriverByName("ESRI Shapefile")
-        dataSource = driver.Open(shape_file, 0)
-        layer = dataSource.GetLayer()
+        data_source = driver.Open(shape_file, 0)
+        layer = data_source.GetLayer()
 
         feature = layer[0]
         feature_dir[feature_name] = feature

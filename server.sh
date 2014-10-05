@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO: bash cannot cross platform, this file may remove later
  
 gunicorn="gunicorn"
 prog="sdmdata"

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*-coding:utf-8-*-
+# TODO: not finished, may remove
 
 import json
 import Queue
@@ -54,7 +55,8 @@ class ThreadWorker(threading.Thread):
 
 def check_species_data():
     db_session = create_session()
-    species_name_list = db_session.query(Species).filter(Species.in_process == False, Species.name_correct == True).all()
+    species_name_list = db_session.query(Species).filter(Species.in_process == False,
+                                                         Species.name_correct == True).all()
     work_queue = Queue.Queue()
 
     for i in range(10):

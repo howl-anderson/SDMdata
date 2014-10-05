@@ -134,7 +134,6 @@ class OccurrenceSearch:
                       limit=20,
                       start=None):
 
-
         args = {"taxonKey": taxon_key,
                 "scientificName": scientific_name,
                 "country": country,

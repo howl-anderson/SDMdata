@@ -1,24 +1,25 @@
 #!/usr/bin/env python
 # -*-coding:utf-8-*-
 
+# import build-in library
 import os
 import json
 import shutil
 import hashlib
+import subprocess
 
+# import third party library
 import tablib
+import chardet
 
-import app_config
-
+# import flask
 from flask import Flask
 from flask import request
-from flask import session
-from flask import flash
 from flask import redirect
 from flask import render_template
 from flask import make_response
-from flask import g
 
+# import extension library of flask
 from flask.ext.login import LoginManager
 from flask.ext.login import UserMixin
 from flask.ext.login import login_user
@@ -26,13 +27,17 @@ from flask.ext.login import logout_user
 from flask.ext.login import login_required
 from flask.ext.login import current_user
 
+# import self build library
 from sdmdata.db import Occurrence
 from sdmdata.db import Species
 from sdmdata.db import User
 from sdmdata.db import State
 from sdmdata.db import create_session
 
+# import database library
 from sqlalchemy.orm.exc import NoResultFound
+
+import app_config
 
 # create our little application :)
 app = Flask(__name__)
@@ -72,6 +77,7 @@ def load_user(user_id):
     except NoResultFound:
         return None
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -86,10 +92,12 @@ def login():
         hashed_password = hash_obj.hexdigest()
         print hashed_password
 
-        check_result = db_session.query(User).filter(User.login_name == user_name, User.password == hashed_password).count()
+        check_result = db_session.query(User).filter(User.login_name == user_name,
+                                                     User.password == hashed_password).count()
 
         if check_result:
-            user_obj = db_session.query(User).filter(User.login_name == user_name, User.password == hashed_password).one()
+            user_obj = db_session.query(User).filter(User.login_name == user_name,
+                                                     User.password == hashed_password).one()
             user_id = user_obj.id
             user = UserManager(user_name, user_id)
             login_result = login_user(user, remember=remember)
@@ -100,15 +108,18 @@ def login():
     else:
         return render_template('user/login.html')
 
+
 @login_manager.unauthorized_handler
 def unauthorized():
     return redirect("/login")
+
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect("/")
+
 
 @app.route("/change-password", methods=["GET", "POST"])
 @login_required
@@ -122,21 +133,22 @@ def change_password():
         hash_obj = hashlib.md5()
         hash_obj.update(old_password)
         hashed_password = hash_obj.hexdigest()
-        print hashed_password
 
-        check_result = db_session.query(User).filter(User.login_name == current_user.user_name, User.password == hashed_password).count()
+        check_result = db_session.query(User).filter(User.login_name == current_user.user_name,
+                                                     User.password == hashed_password).count()
 
         if check_result:
-            user_obj = db_session.query(User).filter(User.login_name == current_user.user_name, User.password == hashed_password).one()
+            user_obj = db_session.query(User).filter(User.login_name == current_user.user_name,
+                                                     User.password == hashed_password).one()
             hash_obj = hashlib.md5()
             hash_obj.update(new_password)
             hashed_password = hash_obj.hexdigest()
-            print hashed_password
             user_obj.password = hashed_password
             db_session.commit()
             return render_template("message.html", result=True)
         else:
             return render_template("message.html", result=False, url="/change-password")
+
 
 @app.route("/manage-user")
 @login_required
@@ -145,6 +157,7 @@ def manage_user():
         db_session = create_session()
         user_list = db_session.query(User).all()
         return render_template("user/manage-user.html", user_list=user_list)
+
 
 @app.route("/add-user", methods=["POST"])
 @login_required
@@ -177,14 +190,6 @@ def delete_user():
         return render_template("message.html", result=True, url="/manage-user")
 
 
-
-
-
-
-
-
-
-
 @app.route('/')
 @login_required
 def index():
@@ -195,15 +200,13 @@ def index():
 @login_required
 def upload_species_csv():
     if request.method == "GET":
-        return render_template("upload-species-csv/index.html")
+        return render_template("upload-species-csv/upload.html")
     if request.method == 'POST':
         work_dir = os.path.join(".", "workspace")
         csv_file = os.path.join(work_dir, "data.csv")
-        upload_result = False
         f = request.files['species_file']
         f.save(csv_file)
         upload_result = True
-        import chardet
 
         fd = open(csv_file, "rb")
         buf = fd.read()
@@ -224,7 +227,7 @@ def import_species_csv():
     work_dir = os.path.join(".", "workspace")
     csv_file = os.path.join(work_dir, "data.csv")
     csv_file_flag = os.path.exists(csv_file)
-    return render_template('import-species-csv/index.html', csv_file=csv_file_flag)
+    return render_template('import-species-csv/import.html', csv_file=csv_file_flag)
 
 
 @app.route("/import-species-csv-result")
@@ -243,16 +246,17 @@ def import_species_csv_result():
                            imported_count=imported_species_count)
 
 
-@app.route("/edit-species-list")
+@app.route("/view-species-list")
 @login_required
 def edit_species_list():
-    return render_template("edit-species-list.html")
+    return render_template("view-species-list.html")
 
 
 @app.route("/empty-species-list")
 @login_required
 def empty_species_list():
     return render_template("empty-species-list.html")
+
 
 @app.route("/do-empty-species-list")
 @login_required
@@ -279,24 +283,28 @@ def check_species_name():
     subprocess.Popen(["./check_species_name_daemon.py", "start"])
     return render_template('check-species-name/result.html')
 
+
 @app.route("/control-species-check")
 @login_required
 def control_species_check():
     command = request.args["command"]
-    import subprocess
+
     subprocess.Popen(["./check_species_name_daemon.py", command])
     print command
     return json.dumps(True)
+
 
 @app.route("/species-check-status")
 @login_required
 def species_check_status():
     import subprocess
-    daemon_process = subprocess.Popen(["./check_species_name_daemon.py", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    daemon_process = subprocess.Popen(["./check_species_name_daemon.py", "status"],
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     std_output, err_output = daemon_process.communicate()
     std_output = std_output.strip(" \n")
     json_string = json.dumps([std_output, err_output])
     return json_string
+
 
 @app.route("/check-species-name-progress")
 @login_required
@@ -319,15 +327,15 @@ def checked_species_name():
 def checked_species_name_data():
     db_session = create_session()
     species_list = db_session.query(Species.species_name,
-                                 Species.kingdom,
-                                 Species.phylum,
-                                 Species.clazz,
-                                 Species.order,
-                                 Species.superfamily,
-                                 Species.family,
-                                 Species.genus,
-                                 Species.species,
-                                 Species.infraspecific).filter(Species.name_correct == True).all()
+                                    Species.kingdom,
+                                    Species.phylum,
+                                    Species.clazz,
+                                    Species.order,
+                                    Species.superfamily,
+                                    Species.family,
+                                    Species.genus,
+                                    Species.species,
+                                    Species.infraspecific).filter(Species.name_correct == True).all()
     print(list(species_list))
     json_string = json.dumps(species_list)
     return json_string
@@ -404,6 +412,7 @@ def fetch_occurrence():
     subprocess.Popen(["./fetch_data_daemon.py", "start"])
     return render_template('fetch-occurrence/result.html')
 
+
 @app.route("/control-fetch-occurrence")
 @login_required
 def control_fetch_occurrence():
@@ -413,15 +422,19 @@ def control_fetch_occurrence():
     print command
     return json.dumps(True)
 
+
 @app.route("/fetch-occurrence-status")
 @login_required
 def fetch_occurrence_status():
     import subprocess
-    daemon_process = subprocess.Popen(["./fetch_data_daemon.py", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    daemon_process = subprocess.Popen(["./fetch_data_daemon.py", "status"],
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
     std_output, err_output = daemon_process.communicate()
     std_output = std_output.strip(" \n")
     json_string = json.dumps([std_output, err_output])
     return json_string
+
 
 @app.route("/species-no-occurrence")
 @login_required
@@ -470,6 +483,7 @@ def species_un_occurrence_data():
     json_string = json.dumps(species_list)
     return json_string
 
+
 @app.route("/export-species-un-occurrence-json")
 @login_required
 def export_species_un_occurrence_json():
@@ -477,9 +491,9 @@ def export_species_un_occurrence_json():
     import tarfile
 
     tar = tarfile.open("un-occurrence-data.tar", "w")
-    file_list = os.listdir("un-occurrence-data")
+    file_list = os.listdir(store_dir)
     print file_list
-    file_list = [os.path.join("un-occurrence-data", file_item) for file_item in file_list]
+    file_list = [os.path.join(store_dir, file_item) for file_item in file_list]
     print file_list
     for name in file_list:
         tar.add(name)
@@ -513,6 +527,7 @@ def export_species_un_occurrence_data():
 @login_required
 def empty_occurrence():
     return render_template('fetch-occurrence/empty.html')
+
 
 @app.route("/do-empty-occurrence")
 @login_required
@@ -571,7 +586,8 @@ def control_cross_check():
 @login_required
 def cross_check_status():
     import subprocess
-    daemon_process = subprocess.Popen(["./cross_check_daemon.py", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    daemon_process = subprocess.Popen(["./cross_check_daemon.py", "status"],
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     std_output, err_output = daemon_process.communicate()
     std_output = std_output.strip(" \n")
     json_string = json.dumps([std_output, err_output])
@@ -582,6 +598,7 @@ def cross_check_status():
 @login_required
 def view_cross_check():
     return render_template("/view-cross-check.html")
+
 
 @app.route("/cross-check-result")
 @login_required
@@ -609,6 +626,7 @@ def cross_check_result():
     json_string = json.dumps(state_list)
     return json_string
 
+
 @app.route("/marked-as-checked")
 @login_required
 def marked_as_checked():
@@ -616,6 +634,7 @@ def marked_as_checked():
     db_session.query(Occurrence).update({'cross_check': 1})
     db_session.commit()
     return render_template("message.html", result=True)
+
 
 @app.route("/empty-check-result")
 @login_required
@@ -634,7 +653,6 @@ def get_cross_check_result():
     state_list = list(state_obj)
     json_string = json.dumps(state_list)
     return json_string
-
 
 
 @app.route("/download-csv")
@@ -695,4 +713,4 @@ def download_shp():
 
 if __name__ == "__main__":
     app.debug = True
-    app.run(host='0.0.0.0',port=5000)
+    app.run(host='0.0.0.0', port=5000)

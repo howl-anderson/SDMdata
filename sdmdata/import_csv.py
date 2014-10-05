@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+# TODO: design for CLI, maybe remove later
 
 import click
 from sdmdata.import_species_csv import import_species_csv
+
 
 @click.command()
 @click.argument('csv_file', type=click.Path(exists=False))
