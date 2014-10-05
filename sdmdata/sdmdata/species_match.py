@@ -39,6 +39,5 @@ def species_match(name,
 
 
 if __name__ == "__main__":
-    # data = species_match(name='Helianthus annuus', kingdom='plants')
     data = species_match(name='Petrocephalus catostoma catostoma')
     print data

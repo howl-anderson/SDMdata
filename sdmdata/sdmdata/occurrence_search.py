@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+# TODO: network interface maybe write into a standalone file with proxy and timeout which come from configure file
 
 import sys
 import json
 import pprint
 import requests
-# import pdb
 
 
 class OccurrenceSearch:
@@ -163,18 +163,6 @@ class OccurrenceSearch:
                 "offset": start}
 
         url = self.api_url
-        # try:
-        #     # pp.pprint(args)
-        #     if self.proxy is None:
-        #         r = requests.get(url, params=args, timeout=self.timeout)
-        #         r.raise_for_status()
-        #     else:
-        #         r = requests.get(url, params=args, timeout=self.timeout, proxies=self.proxy)
-        #         r.raise_for_status()
-        #         # self.pp.pprint(r.url)
-        # except requests.exceptions.Timeout, e:
-        #     print e
-        #     sys.exit()
 
         if self.proxy is None:
             r = requests.get(url, params=args, timeout=self.timeout)
@@ -183,10 +171,6 @@ class OccurrenceSearch:
             r = requests.get(url, params=args, timeout=self.timeout, proxies=self.proxy)
             r.raise_for_status()
 
-        # pp.pprint(self.query_args)
-        # pp.pprint(args)
-        # pp.pprint(r.url)
-        # sys.exit()
         string_data = r.content
         try:
             original_data = json.loads(string_data)
@@ -197,11 +181,11 @@ class OccurrenceSearch:
 
     def collect_record(self):
         data_list = self.results
-        # pdb.set_trace()
+
         record_list = [(item["decimalLongitude"], item["decimalLatitude"], item["countryCode"])
                        for item in data_list
                        if ("decimalLongitude" in item.keys()) & ("decimalLatitude" in item.keys())]
-        # pp.pprint(record_list)
+
         no_record_list = [item
                           for item in data_list
                           if ("decimalLongitude" not in item.keys()) or ("decimalLatitude" not in item.keys())]
@@ -211,8 +195,3 @@ class OccurrenceSearch:
 if __name__ == "__main__":
     obj = OccurrenceSearch()
     data, _ = obj.search(taxon_key=2435099)
-    # pp.pprint(data)
-    #proxies = {
-    #    'http': 'http://127.0.0.1:8087',
-    #    'https': 'http://127.0.0.1:8087',
-    #}

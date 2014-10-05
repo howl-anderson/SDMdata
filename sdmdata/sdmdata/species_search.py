@@ -20,6 +20,7 @@ def species_search(q=None,
                    facet_mincount=None,
                    facet_multiselect=None,
                    type=None):
+
     url = 'http://api.gbif.org/v1/species/search'
 
     args = {"q": q,
