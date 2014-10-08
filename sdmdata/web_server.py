@@ -487,6 +487,7 @@ def species_un_occurrence_data():
 @app.route("/export-species-un-occurrence-json")
 @login_required
 def export_species_un_occurrence_json():
+    # TODO
     store_dir = "./un-occurrence-data"
     import tarfile
 
@@ -658,6 +659,7 @@ def get_cross_check_result():
 @app.route("/download-csv")
 @login_required
 def download_csv():
+    # TODO
     # make sure target dir is empty
     shutil.rmtree("output-csv")
     os.mkdir("output-csv")
@@ -687,6 +689,7 @@ def download_csv():
 @login_required
 def download_shp():
     # make sure target dir is empty
+    # TODO
     shutil.rmtree("output-shp")
     os.mkdir("output-shp")
 

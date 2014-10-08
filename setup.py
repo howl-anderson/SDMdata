@@ -13,7 +13,6 @@ setup(
     'Flask>=0.9',
     'SQLAlchemy>=0.6',
     'iso3166',
-    'gdal',
     'requests',
     'gunicorn',
     'tablib',

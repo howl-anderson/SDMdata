@@ -22,7 +22,7 @@ pid_file = "/var/lock/sdmdata"
 daemon_command = "gunicorn"
 
 server_host = "0.0.0.0"
-server_port = "8080"
+server_port = "8000"
 
 
 def main():

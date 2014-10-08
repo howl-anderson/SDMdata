@@ -17,7 +17,6 @@ def cross_check(work_dir="."):
     dir_name_list = [o for o in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, o))]
 
     for dir_name in dir_name_list:
-        # dir_name = "USA_adm"
         feature_name = dir_name.split("_")[0]
         shape_file = os.path.join(base_dir, dir_name + "/" + dir_name + "0.shp")
         driver = ogr.GetDriverByName("ESRI Shapefile")
@@ -49,6 +48,13 @@ def cross_check(work_dir="."):
         except KeyError:
             # print(country_code + " don't exists")
             session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -1},
+                                                                          synchronize_session=False)
+            session.commit()
+            country_wrong_record.append(oid)
+            continue
+        except:
+            # TODO: here need some help
+            session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -2},
                                                                           synchronize_session=False)
             session.commit()
             country_wrong_record.append(oid)
