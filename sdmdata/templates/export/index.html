@@ -31,6 +31,29 @@
         </div>
     </div>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Service Progress</h3>
+        </div>
+        <div class="panel-body">
+            <div class="radio">
+                <label>
+                    <input type="radio" name="output_all" value="1" checked="checked">All result
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="output_all" value="0">
+                    <select name="output_type" multiple="multiple" size="4">
+                        <option value="1">Correct</option>
+                        <option value="0">Incorrect</option>
+                        <option value="-1">Country unknown</option>
+                        <option value="-2">Other error</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+    </div>
 
     <select name="format">
         <option value="csv" selected="selected">CSV</option>

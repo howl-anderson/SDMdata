@@ -683,12 +683,17 @@ def export():
 @app.route("/download")
 @login_required
 def download():
-    db_session = create_session()
     area_country_all = request.args.get("country_all")
     if not area_country_all:
         country_list = request.args.get("country")
     else:
         country_list = None
+
+    output_all = request.args.get("output_all")
+    if not output_all:
+        output_type = request.args.get("output_type")
+    else:
+        output_type = None
 
     # TODO: check format
     output_format = request.args.get("format")
@@ -698,7 +703,7 @@ def download():
 
     from sdmdata.export_data_main import export_data
 
-    export_data(temp_dir, output_format, country_list)
+    export_data(temp_dir, output_format, country_list, output_type)
 
 
 

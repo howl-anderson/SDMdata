@@ -8,18 +8,27 @@ from db import Occurrence
 from db import create_session
 
 
-def export_data(target_dir, output_format="csv", country_list=None):
+def export_data(target_dir, output_format="csv", country_list=None, output_type=None):
     session = create_session()
     species_list = session.query(Occurrence.species_name).distinct(Occurrence.species_name).filter(
         Occurrence.cross_check == 1).all()
     for species in species_list:
         species_name = species.species_name
         if country_list is None:
-            occurrence_data_set = session.query(Occurrence).filter(Occurrence.species_name == species_name).all()
-        else:
-            occurrence_data_set = session.query(Occurrence).filter(Occurrence.species_name == species_name,
-                                                                   Occurrence.country_code.in_(country_list)).all()
+            if output_type is None:
+                occurrence_data_set = session.query(Occurrence).filter(Occurrence.species_name == species_name).all()
+            else:
+                occurrence_data_set = session.query(Occurrence).filter(Occurrence.species_name == species_name,
+                                                                       Occurrence.cross_check.in_(output_type)).all()
 
+        else:
+            if output_type is None:
+                occurrence_data_set = session.query(Occurrence).filter(Occurrence.species_name == species_name,
+                                                                       Occurrence.country_code.in_(country_list)).all()
+            else:
+                occurrence_data_set = session.query(Occurrence).filter(Occurrence.species_name == species_name,
+                                                                       Occurrence.country_code.in_(country_list),
+                                                                       Occurrence.cross_check.in_(output_type)).all()
         if output_format == "csv":
             output_file = os.path.join(target_dir, species_name + ".csv")
             fd = open(output_file, "wb")
