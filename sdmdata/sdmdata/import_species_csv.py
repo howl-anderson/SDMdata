@@ -22,8 +22,13 @@ def import_species_csv(csv_file, col_index=0, delimiter=',', quote_char='"'):
     unique_list = list(set(species_name_list))
 
     for species_name in unique_list:
-        species_obj = Species(species_name=species_name)
-        session.add(species_obj)
+        species_exits = session.query(Species).filter(Species.species_name == species_name).count()
+        if not species_exits:
+            species_obj = Species(species_name=species_name)
+            session.add(species_obj)
+        else:
+            # TODO: do something maybe: message?
+            pass
     session.commit()
 
     return unique_list, duplicate_list

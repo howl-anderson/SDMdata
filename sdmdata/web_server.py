@@ -7,6 +7,10 @@ import json
 import shutil
 import hashlib
 import subprocess
+import logging
+import tempfile
+import tarfile
+from logging.handlers import RotatingFileHandler
 
 # import third party library
 import tablib
@@ -42,6 +46,14 @@ import app_config
 # create our little application :)
 app = Flask(__name__)
 app.config.from_object(app_config)
+app.debug = True
+# TODO: log file
+handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
+if app.debug:
+    handler.setLevel(logging.DEBUG)
+else:
+    handler.setLevel(logging.INFO)
+app.logger.addHandler(handler)
 # app.config.from_object(__name__)
 
 login_manager = LoginManager()
@@ -548,7 +560,7 @@ def do_empty_occurrence():
 @login_required
 def fetch_occurrence_progress():
     db_session = create_session()
-    species_count = db_session.query(Species).count()
+    species_count = db_session.query(Species).filter(Species.name_correct == True).count()
     species_fetch_done = db_session.query(Species).filter(Species.in_process == True).count()
     json_string = json.dumps([species_fetch_done, species_count])
     return json_string
@@ -655,65 +667,57 @@ def get_cross_check_result():
     json_string = json.dumps(state_list)
     return json_string
 
-
-@app.route("/download-csv")
+@app.route("/export")
 @login_required
-def download_csv():
-    # TODO
-    # make sure target dir is empty
-    shutil.rmtree("output-csv")
-    os.mkdir("output-csv")
+def export():
+    db_session = create_session()
+    country_obj_list = db_session.query(Occurrence.country_code).distinct()
+
+    country_list = []
+    for country_obj in country_obj_list:
+        country_code = country_obj.country_code
+        country_list.append(country_code)
+
+    return render_template("export/index.html", country_list=country_list)
+
+@app.route("/download")
+@login_required
+def download():
+    db_session = create_session()
+    area_country_all = request.args.get("country_all")
+    if not area_country_all:
+        country_list = request.args.get("country")
+    else:
+        country_list = None
+
+    # TODO: check format
+    output_format = request.args.get("format")
+
+    # TODO: this part need to a daemon not to block user interface
+    temp_dir = tempfile.mkdtemp("_sdmdata", "tmp_")
 
     from sdmdata.export_data_main import export_data
 
-    export_data("output-csv", "csv")
+    export_data(temp_dir, output_format, country_list)
 
-    import tarfile
 
-    tar = tarfile.open("output-csv.tar", "w")
-    file_list = os.listdir("output-csv")
-    print file_list
-    file_list = [os.path.join("output-csv", file_item) for file_item in file_list]
-    print file_list
+
+    _, temp_file = tempfile.mkstemp("_sdmdata", "tmp_")
+    tar = tarfile.open(temp_file, "w")
+    file_list = os.listdir(temp_dir)
+    file_list = [os.path.join(temp_dir, file_item) for file_item in file_list]
     for name in file_list:
         tar.add(name)
     tar.close()
     try:
-        os.rename("output-csv.tar", "static/download/output-csv.tar")
+        # TODO: multiply project will be a problem
+        static_file = "static/download/output_" + output_format + ".tar"
+        print temp_file
+        shutil.move(temp_file, static_file)
     except OSError:
-        os.remove("static/download/output-csv.tar")
-    return render_template('download/csv.html', file_url="/static/download/output-csv.tar")
-
-
-@app.route("/download-shp")
-@login_required
-def download_shp():
-    # make sure target dir is empty
-    # TODO
-    shutil.rmtree("output-shp")
-    os.mkdir("output-shp")
-
-    from sdmdata.export_data_main import export_data
-
-    export_data("output-shp", "shp")
-
-    import tarfile
-
-    tar = tarfile.open("output-shp.tar", "w")
-    file_list = os.listdir("output-shp")
-    print file_list
-    file_list = [os.path.join("output-shp", file_item) for file_item in file_list]
-    print file_list
-    for name in file_list:
-        tar.add(name)
-    tar.close()
-    try:
-        os.rename("output-shp.tar", "static/download/output-shp.tar")
-    except OSError:
-        os.remove("static/download/output-shp.tar")
-    return render_template('download/shp.html', file_url="/static/download/output-shp.tar")
+        os.remove(temp_file)
+    return render_template('export/download.html', file_url=static_file)
 
 
 if __name__ == "__main__":
-    app.debug = True
     app.run(host='0.0.0.0', port=5000)
