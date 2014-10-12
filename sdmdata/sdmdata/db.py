@@ -83,3 +83,10 @@ def create_session():
     session_object.configure(bind=engine)
     species_session = session_object()
     return species_session
+
+def create_connect():
+    db_source = DATABASE_URI
+    engine = create_engine(db_source, encoding="utf-8", echo=False)
+    connect = engine.connect()
+    
+    return connect

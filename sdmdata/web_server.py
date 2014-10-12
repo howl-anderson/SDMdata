@@ -22,6 +22,7 @@ from flask import request
 from flask import redirect
 from flask import render_template
 from flask import make_response
+from flask import url_for
 
 # import extension library of flask
 from flask.ext.login import LoginManager
@@ -267,7 +268,19 @@ def edit_species_list():
         ajax_display = False
     else:
         ajax_display = True
-    return render_template("view-species-list.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
+    return render_template("view-species-list.html", species_count=species_count, ajax_display=ajax_display,
+                           count_limit=count_limit, download_link=url_for("download_species_list"),
+                           data_url=url_for("species_list_data"))
+
+
+@app.route("/species-list-data")
+@login_required
+def species_list_data():
+    db_session = create_session()
+    species_list = db_session.query(Species.species_name).all()
+    json_string = json.dumps(species_list)
+    return json_string
+
 
 @app.route("/download-species-list")
 @login_required
@@ -275,10 +288,10 @@ def download_species_list():
     # TODO:
     pass
 
+
 @app.route("/empty-species-list")
 @login_required
 def empty_species_list():
-
     return render_template("empty-species-list.html")
 
 
@@ -291,19 +304,11 @@ def do_empty_species_list():
     return render_template("message.html", result=True)
 
 
-@app.route("/species-list-data")
-@login_required
-def species_list_data():
-    db_session = create_session()
-    species_list = db_session.query(Species.species_name).all()
-    json_string = json.dumps(species_list)
-    return json_string
-
-
 @app.route("/check-species-name")
 @login_required
 def check_species_name():
     import subprocess
+
     subprocess.Popen(["./check_species_name_daemon.py", "start"])
     return render_template('check-species-name/result.html')
 
@@ -321,6 +326,7 @@ def control_species_check():
 @login_required
 def species_check_status():
     import subprocess
+
     daemon_process = subprocess.Popen(["./check_species_name_daemon.py", "status"],
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     std_output, err_output = daemon_process.communicate()
@@ -348,7 +354,9 @@ def checked_species_name():
         ajax_display = False
     else:
         ajax_display = True
-    return render_template("checked-species-name.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
+    return render_template("checked-species-name.html", species_count=species_count, ajax_display=ajax_display,
+                           count_limit=count_limit, download_link=url_for("export_checked_species_name_data"),
+                           data_url=url_for("checked_species_name_data"))
 
 
 @app.route("/checked-species-name-data")
@@ -408,7 +416,9 @@ def error_species_name():
         ajax_display = False
     else:
         ajax_display = True
-    return render_template("error-species-name.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
+    return render_template("error-species-name.html", species_count=species_count, ajax_display=ajax_display,
+                           count_limit=count_limit, download_link=url_for("export_error_species_name_data"),
+                           data_url=url_for("error_species_name_data"))
 
 
 @app.route("/error-species-name-data")
@@ -443,6 +453,7 @@ def export_error_species_name_data():
 @login_required
 def fetch_occurrence():
     import subprocess
+
     subprocess.Popen(["./fetch_data_daemon.py", "start"])
     return render_template('fetch-occurrence/result.html')
 
@@ -452,6 +463,7 @@ def fetch_occurrence():
 def control_fetch_occurrence():
     command = request.args["command"]
     import subprocess
+
     subprocess.Popen(["./fetch_data_daemon.py", command])
     return json.dumps(True)
 
@@ -460,6 +472,7 @@ def control_fetch_occurrence():
 @login_required
 def fetch_occurrence_status():
     import subprocess
+
     daemon_process = subprocess.Popen(["./fetch_data_daemon.py", "status"],
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
@@ -473,12 +486,14 @@ def fetch_occurrence_status():
 @login_required
 def species_no_occurrence():
     db_session = create_session()
-    species_count = db_session.query(Species).filter(Species.name_correct == False).count()
+    species_count = db_session.query(Species.species_name).filter(Species.no_data == True).count()
     if species_count >= count_limit:
         ajax_display = False
     else:
         ajax_display = True
-    return render_template("species-no-occurrence.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
+    return render_template("species-no-occurrence.html", species_count=species_count, ajax_display=ajax_display,
+                           count_limit=count_limit, download_link=url_for("export_species_no_occurrence_data"),
+                           data_url=url_for("species_no_occurrence_data"))
 
 
 @app.route("/species-no-occurrence-data")
@@ -517,7 +532,9 @@ def species_un_occurrence():
         ajax_display = False
     else:
         ajax_display = True
-    return render_template("species-un-occurrence.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
+    return render_template("species-un-occurrence.html", species_count=species_count, ajax_display=ajax_display,
+                           count_limit=count_limit, download_link=url_for("export_species_un_occurrence_json"),
+                           data_url=url_for("species_un_occurrence_data"))
 
 
 @app.route("/species-un-occurrence-data")
@@ -623,6 +640,7 @@ def cross_check_progress():
 def control_cross_check():
     command = request.args["command"]
     import subprocess
+
     subprocess.Popen(["./cross_check_daemon.py", command])
     return json.dumps(True)
 
@@ -631,6 +649,7 @@ def control_cross_check():
 @login_required
 def cross_check_status():
     import subprocess
+
     daemon_process = subprocess.Popen(["./cross_check_daemon.py", "status"],
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     std_output, err_output = daemon_process.communicate()
@@ -643,12 +662,14 @@ def cross_check_status():
 @login_required
 def view_cross_check():
     db_session = create_session()
-    species_count = db_session.query(Species).filter(Species.have_un_coordinate_data == True).count()
+    species_count = db_session.query(Occurrence.species_name).distinct().count()
     if species_count >= count_limit:
         ajax_display = False
     else:
         ajax_display = True
-    return render_template("/view-cross-check.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
+    return render_template("/view-cross-check.html", species_count=species_count, ajax_display=ajax_display,
+                           count_limit=count_limit, download_link=url_for("download_cross_check_result"),
+                           data_url=url_for("cross_check_result"))
 
 
 @app.route("/cross-check-result")
@@ -675,6 +696,7 @@ def cross_check_result():
     state_list = list(state_list)
     json_string = json.dumps(state_list)
     return json_string
+
 
 @app.route("/download-cross-check-result")
 @login_required
@@ -710,6 +732,7 @@ def get_cross_check_result():
     json_string = json.dumps(state_list)
     return json_string
 
+
 @app.route("/export")
 @login_required
 def export():
@@ -722,6 +745,7 @@ def export():
         country_list.append(country_code)
 
     return render_template("export/index.html", country_list=country_list)
+
 
 @app.route("/download")
 @login_required
@@ -742,15 +766,16 @@ def download():
     output_format = request.args.get("format")
 
     # TODO: this part need to a daemon not to block user interface
-    temp_dir = tempfile.mkdtemp("_sdmdata", "tmp_")
+    temp_dir = tempfile.mkdtemp()
+
+    print(temp_dir, output_format, country_list, output_type)
+    return "debug now"
 
     from sdmdata.export_data_main import export_data
 
     export_data(temp_dir, output_format, country_list, output_type)
 
-
-
-    _, temp_file = tempfile.mkstemp("_sdmdata", "tmp_")
+    _, temp_file = tempfile.mkstemp()
     tar = tarfile.open(temp_file, "w")
     file_list = os.listdir(temp_dir)
     file_list = [os.path.join(temp_dir, file_item) for file_item in file_list]

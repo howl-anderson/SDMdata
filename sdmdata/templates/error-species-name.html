@@ -1,43 +1,7 @@
-{% extends "framework.html" %}
-{% block header %}
-    <link href="/static/js/jquery.handsontable.full.css" rel="stylesheet">
-    <script src="/static/js/jquery.handsontable.full.js"></script>
-{% endblock %}
-{% block breadcrumb %}
-    <ol class="breadcrumb">
-        <li><a href="/">Home</a></li>
-        <li class="active">Check Species</li>
-        <li class="active">View Error Species Name</li>
-    </ol>
-{% endblock %}
-{% block body %}
-<div>Count: {{ species_count }}</div>
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <h5>click <a href="/export-error-species-name-data">here</a> download as CSV file</h5>
-      </div>
-    </div>
-    <div class="handsontable" id="example">
-    </div>
-    <div class="alert alert-info" role="alert" id="message" style="display:none;">This list is empty!</div>
-    <script>
-        $(document).ready(function(){
-        if ({{ ajax_display | int }}) {
-            $.getJSON("/error-species-name-data", function(data){
-                if (data.length) {
-                    $('#example').handsontable({
-                      data: data,
-                      minSpareRows: 1,
-                      colHeaders: ["species name"],
-                      contextMenu: true
-                    });
-                } else {
-                    $("#message").css("display","block");
-                }
-            });
-        } else {
-            $('#example').text("Table is not displayed (number of species >= {{ count_limit }}), user can download csv then view on local computer");
-        }
-        });
-    </script>
+{% extends "table_view_framework.html" %}
+{% block handsontable %}
+data: data,
+minSpareRows: 1,
+colHeaders: ["species name"],
+contextMenu: true
 {% endblock %}

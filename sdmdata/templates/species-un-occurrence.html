@@ -1,40 +1,8 @@
-{% extends "framework.html" %}
-{% block header %}
-<link href="/static/js/jquery.handsontable.full.css" rel="stylesheet">
-<script src="/static/js/jquery.handsontable.full.js"></script>
-{% endblock %}
-{% block breadcrumb %}
-    <ol class="breadcrumb">
-        <li><a href="/">Home</a></li>
-        <li class="active">Collect Occurrence</li>
-        <li class="active">View Species that have un coordinate occurrence</li>
-    </ol>
-{% endblock %}
-{% block body %}
-<div>Count: {{ species_count }}</div>
-<div class="panel panel-default">
-  <div class="panel-body">
-    <h5>Click <a href="/export-species-un-occurrence-data">here</a> download species name as CSV file</h5>
-    <h5>Click <a href="/export-species-un-occurrence-json">here</a> download un-occurrence data as ZIP file (json format)</h5>
-  </div>
-</div>
-<div class="handsontable" id="example">
-</div>
-<script>
-    $(document).ready(function(){
-    if ({{ ajax_display | int }}) {
-        $.getJSON("/species-un-occurrence-data", function(data){
-            $('#example').handsontable({
-              data: data,
-              minSpareRows: 0,
-              colHeaders: true,
-              contextMenu: true,
-              colHeaders: ["Species name"]
-            });
-        });
-    } else {
-        $('#example').text("Table is not displayed (number of species >= {{ count_limit }}), user can download csv then view on local computer");
-    }
-    });
-</script>
+{% extends "table_view_framework.html" %}
+{% block handsontable %}
+data: data,
+minSpareRows: 0,
+colHeaders: true,
+contextMenu: true,
+colHeaders: ["Species name"]
 {% endblock %}
