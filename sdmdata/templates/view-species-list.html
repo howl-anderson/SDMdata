@@ -11,25 +11,31 @@
     </ol>
 {% endblock %}
 {% block body %}
+    <div>Count: {{ species_count }}</div>
+    <div>Click <a href="/download-species-list">here</a> download species list</div>
     <div class="handsontable" id="example">
     </div>
     <div class="alert alert-info" role="alert" id="message" style="display:none;">This list is empty!</div>
     <script>
         $(document).ready(function(){
-            $.getJSON("/species-list-data", function(data){
-                console.log(data.length);
-                if (data.length) {
-                    $('#example').handsontable({
-                      data: data,
-                      minSpareRows: 0,
-                      colHeaders: true,
-                      contextMenu: true,
-                      colHeaders: ["Species name"]
-                    });
-                } else {
-                    $("#message").css("display","block");
-                }
-            });
+            if ({{ ajax_display | int }}) {
+                $.getJSON("/species-list-data", function(data){
+                    console.log(data.length);
+                    if (data.length) {
+                        $('#example').handsontable({
+                          data: data,
+                          minSpareRows: 0,
+                          colHeaders: true,
+                          contextMenu: true,
+                          colHeaders: ["Species name"]
+                        });
+                    } else {
+                        $("#message").css("display","block");
+                    }
+                });
+            } else {
+                $('#example').text("Table is not displayed (number of species >= {{ count_limit }}), user can download csv then view on local computer");
+            }
         });
     </script>
 {% endblock %}

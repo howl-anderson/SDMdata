@@ -11,6 +11,7 @@
     </ol>
 {% endblock %}
 {% block body %}
+<div>Count: {{ species_count }}</div>
     <div class="panel panel-default">
       <div class="panel-body">
         <h5>click <a href="/export-error-species-name-data">here</a> download as CSV file</h5>
@@ -21,6 +22,7 @@
     <div class="alert alert-info" role="alert" id="message" style="display:none;">This list is empty!</div>
     <script>
         $(document).ready(function(){
+        if ({{ ajax_display | int }}) {
             $.getJSON("/error-species-name-data", function(data){
                 if (data.length) {
                     $('#example').handsontable({
@@ -33,6 +35,9 @@
                     $("#message").css("display","block");
                 }
             });
+        } else {
+            $('#example').text("Table is not displayed (number of species >= {{ count_limit }}), user can download csv then view on local computer");
+        }
         });
     </script>
 {% endblock %}

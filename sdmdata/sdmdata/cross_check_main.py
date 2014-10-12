@@ -46,14 +46,13 @@ def cross_check(work_dir="."):
             poly = feature_dir[country_code]
             poly = poly.geometry()
         except KeyError:
-            # print(country_code + " don't exists")
             session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -1},
                                                                           synchronize_session=False)
             session.commit()
             country_wrong_record.append(oid)
             continue
         except:
-            # TODO: here need some help
+            # TODO: here need some help: the exception
             session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -2},
                                                                           synchronize_session=False)
             session.commit()

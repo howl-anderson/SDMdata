@@ -6,26 +6,26 @@
 </ol>
 {% endblock %}
 {% block body %}
-<form action="/download" method="get">
+<form action="/download" method="get" role="form" class="form-horizontal">
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Service Progress</h3>
+            <h3 class="panel-title">Select output area</h3>
         </div>
         <div class="panel-body">
             <div class="radio">
                 <label>
-                    <input type="radio" name="country_all" value="1" checked="checked">All area
+                    <input type="radio" name="country_all" value="1" checked="checked"> All area
                 </label>
             </div>
             <div class="radio">
                 <label>
-                    <input type="radio" name="country_all" value="0">
-                    <select name="country" multiple="multiple" size="4">
-                        {% for country in country_list %}
-                        <option value="{{ country }}">{{ country }}</option>
-                        {% endfor %}
-                    </select>
+                <input type="radio" name="country_all" value="0">
+                <select name="country" multiple="multiple" size="4">
+                    {% for country in country_list %}
+                    <option value="{{ country }}">{{ country }}</option>
+                    {% endfor %}
+                </select>
                 </label>
             </div>
         </div>
@@ -33,7 +33,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Service Progress</h3>
+            <h3 class="panel-title">Select cross-check status</h3>
         </div>
         <div class="panel-body">
             <div class="radio">
@@ -55,10 +55,17 @@
         </div>
     </div>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Select output format</h3>
+        </div>
+        <div class="panel-body">
     <select name="format">
         <option value="csv" selected="selected">CSV</option>
         <option value="shp">Shapefile</option>
     </select>
+    </div>
+    </div>
     <button type="submit">Submit</button>
 </form>
 <script>

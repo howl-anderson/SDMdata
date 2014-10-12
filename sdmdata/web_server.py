@@ -59,6 +59,9 @@ app.logger.addHandler(handler)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# TODO: count_limit need be in app.config
+count_limit = 50
+
 
 class UserManager(UserMixin):
     def __init__(self, user_name, user_id):
@@ -97,12 +100,10 @@ def login():
         password = request.form['password']
         remember = request.form.get('remember')
         remember = bool(remember)
-        print remember
         db_session = create_session()
         hash_obj = hashlib.md5()
         hash_obj.update(password)
         hashed_password = hash_obj.hexdigest()
-        print hashed_password
 
         check_result = db_session.query(User).filter(User.login_name == user_name,
                                                      User.password == hashed_password).count()
@@ -113,7 +114,6 @@ def login():
             user_id = user_obj.id
             user = UserManager(user_name, user_id)
             login_result = login_user(user, remember=remember)
-            print login_result
             return redirect("/")
         else:
             return redirect("/login")
@@ -261,12 +261,24 @@ def import_species_csv_result():
 @app.route("/view-species-list")
 @login_required
 def edit_species_list():
-    return render_template("view-species-list.html")
+    db_session = create_session()
+    species_count = db_session.query(Species.species_name).count()
+    if species_count >= count_limit:
+        ajax_display = False
+    else:
+        ajax_display = True
+    return render_template("view-species-list.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
 
+@app.route("/download-species-list")
+@login_required
+def download_species_list():
+    # TODO:
+    pass
 
 @app.route("/empty-species-list")
 @login_required
 def empty_species_list():
+
     return render_template("empty-species-list.html")
 
 
@@ -302,7 +314,6 @@ def control_species_check():
     command = request.args["command"]
 
     subprocess.Popen(["./check_species_name_daemon.py", command])
-    print command
     return json.dumps(True)
 
 
@@ -331,7 +342,13 @@ def check_species_name_progress():
 @app.route("/checked-species-name")
 @login_required
 def checked_species_name():
-    return render_template("checked-species-name.html")
+    db_session = create_session()
+    species_count = db_session.query(Species).filter(Species.name_correct == True).count()
+    if species_count >= count_limit:
+        ajax_display = False
+    else:
+        ajax_display = True
+    return render_template("checked-species-name.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
 
 
 @app.route("/checked-species-name-data")
@@ -348,7 +365,6 @@ def checked_species_name_data():
                                     Species.genus,
                                     Species.species,
                                     Species.infraspecific).filter(Species.name_correct == True).all()
-    print(list(species_list))
     json_string = json.dumps(species_list)
     return json_string
 
@@ -386,7 +402,13 @@ def export_checked_species_name_data():
 @app.route("/error-species-name")
 @login_required
 def error_species_name():
-    return render_template("error-species-name.html")
+    db_session = create_session()
+    species_count = db_session.query(Species).filter(Species.name_correct == False).count()
+    if species_count >= count_limit:
+        ajax_display = False
+    else:
+        ajax_display = True
+    return render_template("error-species-name.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
 
 
 @app.route("/error-species-name-data")
@@ -431,7 +453,6 @@ def control_fetch_occurrence():
     command = request.args["command"]
     import subprocess
     subprocess.Popen(["./fetch_data_daemon.py", command])
-    print command
     return json.dumps(True)
 
 
@@ -451,7 +472,13 @@ def fetch_occurrence_status():
 @app.route("/species-no-occurrence")
 @login_required
 def species_no_occurrence():
-    return render_template("species-no-occurrence.html")
+    db_session = create_session()
+    species_count = db_session.query(Species).filter(Species.name_correct == False).count()
+    if species_count >= count_limit:
+        ajax_display = False
+    else:
+        ajax_display = True
+    return render_template("species-no-occurrence.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
 
 
 @app.route("/species-no-occurrence-data")
@@ -484,7 +511,13 @@ def export_species_no_occurrence_data():
 @app.route("/species-un-occurrence")
 @login_required
 def species_un_occurrence():
-    return render_template("species-un-occurrence.html")
+    db_session = create_session()
+    species_count = db_session.query(Species).filter(Species.have_un_coordinate_data == True).count()
+    if species_count >= count_limit:
+        ajax_display = False
+    else:
+        ajax_display = True
+    return render_template("species-un-occurrence.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
 
 
 @app.route("/species-un-occurrence-data")
@@ -505,9 +538,7 @@ def export_species_un_occurrence_json():
 
     tar = tarfile.open("un-occurrence-data.tar", "w")
     file_list = os.listdir(store_dir)
-    print file_list
     file_list = [os.path.join(store_dir, file_item) for file_item in file_list]
-    print file_list
     for name in file_list:
         tar.add(name)
     tar.close()
@@ -550,6 +581,8 @@ def do_empty_occurrence():
     db_session.commit()
     db_session.query(Species).filter(Species.in_process == True).update({"in_process": 0}, synchronize_session=False)
     db_session.commit()
+
+    # TODO: directory
     # remove json file
     shutil.rmtree("un-occurrence-data")
     os.mkdir("un-occurrence-data")
@@ -591,7 +624,6 @@ def control_cross_check():
     command = request.args["command"]
     import subprocess
     subprocess.Popen(["./cross_check_daemon.py", command])
-    print command
     return json.dumps(True)
 
 
@@ -610,7 +642,13 @@ def cross_check_status():
 @app.route("/view-cross-check")
 @login_required
 def view_cross_check():
-    return render_template("/view-cross-check.html")
+    db_session = create_session()
+    species_count = db_session.query(Species).filter(Species.have_un_coordinate_data == True).count()
+    if species_count >= count_limit:
+        ajax_display = False
+    else:
+        ajax_display = True
+    return render_template("/view-cross-check.html", species_count=species_count, ajax_display=ajax_display, count_limit=count_limit)
 
 
 @app.route("/cross-check-result")
@@ -618,7 +656,6 @@ def view_cross_check():
 def cross_check_result():
     db_session = create_session()
     state_obj = db_session.query(State).delete()
-    print state_obj
     species_list = db_session.query(Occurrence.species_name).distinct()
 
     for species_obj in species_list:
@@ -638,6 +675,12 @@ def cross_check_result():
     state_list = list(state_list)
     json_string = json.dumps(state_list)
     return json_string
+
+@app.route("/download-cross-check-result")
+@login_required
+def download_cross_check_result():
+    # TODO
+    pass
 
 
 @app.route("/marked-as-checked")
@@ -717,7 +760,6 @@ def download():
     try:
         # TODO: multiply project will be a problem
         static_file = "static/download/output_" + output_format + ".tar"
-        print temp_file
         shutil.move(temp_file, static_file)
     except OSError:
         os.remove(temp_file)
