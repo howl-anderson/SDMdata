@@ -285,8 +285,20 @@ def species_list_data():
 @app.route("/download-species-list")
 @login_required
 def download_species_list():
-    # TODO:
-    pass
+    db_session = create_session()
+    species_list = db_session.query(Species.species_name).all()
+    headers = ["Species name"]
+
+    raw_data = list(species_list)
+
+    data = tablib.Dataset(*raw_data, headers=headers)
+
+    csv_string = data.csv
+
+    resp = make_response(csv_string)
+    resp.headers['Content-Disposition'] = 'attachment;filename=species-name-list.csv'
+    resp.headers['Content-type'] = 'text/csv'
+    return resp
 
 
 @app.route("/empty-species-list")
