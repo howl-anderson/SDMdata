@@ -819,12 +819,21 @@ def download():
         tar.add(name)
     tar.close()
 
-    # TODO: multiply project will be a problem
-    static_file = "static/download/output_" + output_format + ".tar"
-    static_file_url_path = os.path.join("/", static_file)
-    shutil.move(temp_file, static_file)
+    # # TODO: multiply project will be a problem
+    # static_file = "static/download/output_" + output_format + ".tar"
+    # static_file_url_path = os.path.join("/", static_file)
+    # shutil.move(temp_file, static_file)
+    #
+    # return render_template('export/download.html', file_url=static_file_url_path)
 
-    return render_template('export/download.html', file_url=static_file_url_path)
+    fd = open(temp_file, "rb")
+    tar_string = fd.read()
+    fd.close()
+
+    resp = make_response(tar_string)
+    resp.headers['Content-Disposition'] = 'attachment;sdmdata-data.tar'
+    resp.headers['Content-type'] = 'application/x-tar'
+    return resp
 
 
 if __name__ == "__main__":
