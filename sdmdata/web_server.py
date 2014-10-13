@@ -780,9 +780,6 @@ def download():
     # TODO: this part need to a daemon not to block user interface
     temp_dir = tempfile.mkdtemp()
 
-    print(temp_dir, output_format, country_list, output_type)
-    return "debug now"
-
     from sdmdata.export_data_main import export_data
 
     export_data(temp_dir, output_format, country_list, output_type)
