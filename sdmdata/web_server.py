@@ -831,7 +831,7 @@ def download():
     fd.close()
 
     resp = make_response(tar_string)
-    resp.headers['Content-Disposition'] = 'attachment;sdmdata-data.tar'
+    resp.headers['Content-Disposition'] = 'attachment;filename=sdmdata-data.tar'
     resp.headers['Content-type'] = 'application/octet-stream'
     return resp
 
