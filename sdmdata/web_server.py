@@ -582,12 +582,14 @@ def export_species_non_occurrence_json():
         tar.add(name)
     tar.close()
 
-    static_file = "static/download/un-occurrence-data.tar"
-    static_file_url_path = os.path.join("/", static_file)
+    fd = open(temp_file, "rb")
+    tar_string = fd.read()
+    fd.close()
 
-    shutil.move(temp_file, static_file)
-
-    return render_template('download/link.html', file_url=static_file_url_path)
+    resp = make_response(tar_string)
+    resp.headers['Content-Disposition'] = 'attachment;filename=un-occurrence-data.tar'
+    resp.headers['Content-type'] = 'application/x-tar'
+    return resp
 
 
 @app.route("/export-species-non-occurrence-data")
@@ -623,10 +625,6 @@ def do_empty_occurrence():
     db_session.query(Species).filter(Species.in_process == True).update({"in_process": 0}, synchronize_session=False)
     db_session.commit()
 
-    # TODO: directory
-    # remove json file
-    shutil.rmtree("un-occurrence-data")
-    os.mkdir("un-occurrence-data")
     return render_template("message.html", result=True)
 
 
@@ -799,10 +797,8 @@ def download():
     else:
         output_type = None
 
-    # TODO: check format
     output_format = request.args.get("format")
 
-    # TODO: this part need to a daemon not to block user interface
     temp_dir = tempfile.mkdtemp()
 
     from sdmdata.export_data_main import export_data
@@ -818,13 +814,6 @@ def download():
     for name in file_list:
         tar.add(name)
     tar.close()
-
-    # # TODO: multiply project will be a problem
-    # static_file = "static/download/output_" + output_format + ".tar"
-    # static_file_url_path = os.path.join("/", static_file)
-    # shutil.move(temp_file, static_file)
-    #
-    # return render_template('export/download.html', file_url=static_file_url_path)
 
     fd = open(temp_file, "rb")
     tar_string = fd.read()

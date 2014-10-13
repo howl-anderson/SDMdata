@@ -27,8 +27,8 @@ def import_species_csv(csv_file, col_index=0, delimiter=',', quote_char='"'):
             species_obj = Species(species_name=species_name)
             session.add(species_obj)
         else:
-            # TODO: do something maybe: message?
-            pass
+            # NOTICE: exists species was treat as duplicate
+            duplicate_list.append(species_name)
     session.commit()
 
     return unique_list, duplicate_list
