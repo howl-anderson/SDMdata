@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db_config import DATABASE_URI
+from db_config import DATABASE_HOST_URI
 
 database_base = declarative_base()
 
@@ -85,7 +86,7 @@ def create_session():
     return species_session
 
 def create_connect():
-    db_source = DATABASE_URI
+    db_source = DATABASE_HOST_URI
     engine = create_engine(db_source, encoding="utf-8", echo=False)
     connect = engine.connect()
     
