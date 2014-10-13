@@ -1,4 +1,11 @@
 {% extends "table_view_framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Cross check</li>
+        <li class="active">View Cross Check</li>
+    </ol>
+{% endblock %}
 {% block handsontable %}
 data: data,
 minSpareRows: 0,

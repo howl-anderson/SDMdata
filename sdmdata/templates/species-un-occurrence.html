@@ -1,4 +1,11 @@
 {% extends "table_view_framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Fetch occurrence</li>
+        <li class="active">View Species that have no occurrence</li>
+    </ol>
+{% endblock %}
 {% block handsontable %}
 data: data,
 minSpareRows: 0,
