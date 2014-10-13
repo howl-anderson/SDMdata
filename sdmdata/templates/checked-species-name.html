@@ -1,4 +1,11 @@
 {% extends "table_view_framework.html" %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="/">Home</a></li>
+        <li class="active">Import Species</li>
+        <li class="active">View Species list</li>
+    </ol>
+{% endblock %}
 {% block handsontable %}
 data: data,
 minSpareRows: 0,
