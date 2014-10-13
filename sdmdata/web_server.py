@@ -465,7 +465,6 @@ def export_error_species_name_data():
 @login_required
 def fetch_occurrence():
     import subprocess
-
     subprocess.Popen(["./fetch_data_daemon.py", "start"])
     return render_template('fetch-occurrence/result.html')
 
@@ -535,9 +534,9 @@ def export_species_no_occurrence_data():
     return resp
 
 
-@app.route("/species-un-occurrence")
+@app.route("/species-non-occurrence")
 @login_required
-def species_un_occurrence():
+def species_non_occurrence():
     db_session = create_session()
     species_count = db_session.query(Species).filter(Species.have_un_coordinate_data == True).count()
     if species_count >= count_limit:
@@ -545,42 +544,55 @@ def species_un_occurrence():
     else:
         ajax_display = True
     return render_template("species-non-occurrence.html", species_count=species_count, ajax_display=ajax_display,
-                           count_limit=count_limit, download_link=url_for("export_species_un_occurrence_json"),
-                           data_url=url_for("species_un_occurrence_data"))
+                           count_limit=count_limit, download_link=url_for("export_species_non_occurrence_json"),
+                           data_url=url_for("species_non_occurrence_data"))
 
 
-@app.route("/species-un-occurrence-data")
+@app.route("/species-non-occurrence-data")
 @login_required
-def species_un_occurrence_data():
+def species_non_occurrence_data():
     db_session = create_session()
     species_list = db_session.query(Species.species_name).filter(Species.have_un_coordinate_data == True).all()
     json_string = json.dumps(species_list)
     return json_string
 
 
-@app.route("/export-species-un-occurrence-json")
+@app.route("/export-species-non-occurrence-json")
 @login_required
-def export_species_un_occurrence_json():
-    # TODO
-    store_dir = "./un-occurrence-data"
-    import tarfile
+def export_species_non_occurrence_json():
+    db_session = create_session()
 
-    tar = tarfile.open("un-occurrence-data.tar", "w")
-    file_list = os.listdir(store_dir)
-    file_list = [os.path.join(store_dir, file_item) for file_item in file_list]
+    temp_dir = tempfile.mkdtemp()
+    _, temp_file = tempfile.mkstemp()
+
+    tar = tarfile.open(temp_file, "w")
+
+    data_obj = db_session.query(Species.un_coordinate_data, Species.species_name).filter(Species.have_un_coordinate_data == True).all()
+    for data_item in data_obj:
+        json_string = data_item.un_coordinate_data
+        file_name = data_item.species_name + ".csv"
+        full_file_path = os.path.join(temp_dir, file_name)
+        fd = open(full_file_path, "w")
+        fd.write(json_string)
+        fd.close()
+
+    file_list = os.listdir(temp_dir)
+    file_list = [os.path.join(temp_dir, file_item) for file_item in file_list]
     for name in file_list:
         tar.add(name)
     tar.close()
-    try:
-        os.rename("un-occurrence-data.tar", "static/download/un-occurrence-data.tar")
-    except OSError:
-        os.remove("static/download/un-occurrence-data.tar")
-    return render_template('download/link.html', file_url="/static/download/un-occurrence-data.tar")
+
+    static_file = "static/download/un-occurrence-data.tar"
+    static_file_url_path = os.path.join("/", static_file)
+
+    shutil.move(temp_file, static_file)
+
+    return render_template('download/link.html', file_url=static_file_url_path)
 
 
-@app.route("/export-species-un-occurrence-data")
+@app.route("/export-species-non-occurrence-data")
 @login_required
-def export_species_un_occurrence_data():
+def export_species_non_occurrence_data():
     db_session = create_session()
     species_list = db_session.query(Species.species_name).filter(Species.have_un_coordinate_data == True).all()
     raw_data = list(species_list)
@@ -713,8 +725,20 @@ def cross_check_result():
 @app.route("/download-cross-check-result")
 @login_required
 def download_cross_check_result():
-    # TODO
-    pass
+    db_session = create_session()
+    state_list = db_session.query(State.species_name, State.correct, State.incorrect, State.unknown_country).all()
+
+    raw_data = list(state_list)
+
+    headers = ["Species name", "Correct", "Incorrect", "Country unknown"]
+    data = tablib.Dataset(*raw_data, headers=headers)
+
+    csv_string = data.csv
+
+    resp = make_response(csv_string)
+    resp.headers['Content-Disposition'] = 'attachment;filename=download-cross-check-result.csv'
+    resp.headers['Content-type'] = 'text/csv'
+    return resp
 
 
 @app.route("/marked-as-checked")
@@ -762,15 +786,16 @@ def export():
 @app.route("/download")
 @login_required
 def download():
-    area_country_all = request.args.get("country_all")
+    area_country_all = int(request.args.get("country_all"))
     if not area_country_all:
-        country_list = request.args.get("country")
+        country_list = request.args.getlist("country")
     else:
         country_list = None
 
-    output_all = request.args.get("output_all")
+    output_all = int(request.args.get("output_all"))
+
     if not output_all:
-        output_type = request.args.get("output_type")
+        output_type = request.args.getlist("output_type")
     else:
         output_type = None
 
@@ -782,6 +807,8 @@ def download():
 
     from sdmdata.export_data_main import export_data
 
+    print(temp_dir, output_format, country_list, output_type)
+
     export_data(temp_dir, output_format, country_list, output_type)
 
     _, temp_file = tempfile.mkstemp()
@@ -791,13 +818,13 @@ def download():
     for name in file_list:
         tar.add(name)
     tar.close()
-    try:
-        # TODO: multiply project will be a problem
-        static_file = "static/download/output_" + output_format + ".tar"
-        shutil.move(temp_file, static_file)
-    except OSError:
-        os.remove(temp_file)
-    return render_template('export/download.html', file_url=static_file)
+
+    # TODO: multiply project will be a problem
+    static_file = "static/download/output_" + output_format + ".tar"
+    static_file_url_path = os.path.join("/", static_file)
+    shutil.move(temp_file, static_file)
+
+    return render_template('export/download.html', file_url=static_file_url_path)
 
 
 if __name__ == "__main__":

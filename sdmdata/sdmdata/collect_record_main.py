@@ -26,12 +26,8 @@ def collect_record_data(root_dir):
             species_obj.have_un_coordinate_data = True
             session.commit()
             # species_obj.un_coordinate_data = json.dumps(no_data)
-            store_dir = "un-occurrence-data"
-            species_file = species_name.replace(" ", "_") + ".json"
-            file_name = os.path.join(root_dir, store_dir, species_file)
-            fd = open(file_name, "w")
-            fd.write(json.dumps(no_data))
-            fd.close()
+            species_obj.un_coordinate_data = json.dumps(no_data)
+            session.commit()
 
         if len(data):
             for item in data:

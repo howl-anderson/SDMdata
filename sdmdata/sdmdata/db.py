@@ -40,7 +40,7 @@ class Species(database_base):
     # have un-coordinate data?
     have_un_coordinate_data = Column(Boolean, nullable=True, default=None)
     # store un-coordinate data
-    # un_coordinate_data = Column(Text, nullable=True, default=None)
+    un_coordinate_data = Column(Text, nullable=True, default=None)
 
 
 class Occurrence(database_base):
