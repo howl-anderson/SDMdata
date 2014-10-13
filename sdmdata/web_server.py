@@ -544,7 +544,7 @@ def species_un_occurrence():
         ajax_display = False
     else:
         ajax_display = True
-    return render_template("species-un-occurrence.html", species_count=species_count, ajax_display=ajax_display,
+    return render_template("species-non-occurrence.html", species_count=species_count, ajax_display=ajax_display,
                            count_limit=count_limit, download_link=url_for("export_species_un_occurrence_json"),
                            data_url=url_for("species_un_occurrence_data"))
 
