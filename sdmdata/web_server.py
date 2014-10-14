@@ -570,7 +570,7 @@ def export_species_non_occurrence_json():
     data_obj = db_session.query(Species.un_coordinate_data, Species.species_name).filter(Species.have_un_coordinate_data == True).all()
     for data_item in data_obj:
         json_string = data_item.un_coordinate_data
-        file_name = data_item.species_name + ".csv"
+        file_name = data_item.species_name + ".json"
         full_file_path = os.path.join(temp_dir, file_name)
         fd = open(full_file_path, "w")
         fd.write(json_string)
