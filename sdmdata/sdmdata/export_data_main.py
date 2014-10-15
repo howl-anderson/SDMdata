@@ -69,9 +69,9 @@ def export_data(target_dir, output_format="csv", country_list=None, output_type=
             for occurrence_point in occurrence_data_set:
                 longitude = occurrence_point.longitude
                 latitude = occurrence_point.latitude
-                point = (longitude, latitude)
-                point_object = ogr.Geometry(ogr.wkbPoint)
-                point_object.AddPoint(*point)
+                # point = (longitude, latitude)
+                # point_object = ogr.Geometry(ogr.wkbPoint)
+                # point_object.AddPoint(*point)
                 # multipoint.AddGeometry(point_object)
 
                 feature = ogr.Feature(layer.GetLayerDefn())
@@ -81,8 +81,14 @@ def export_data(target_dir, output_format="csv", country_list=None, output_type=
                 feature.SetField("Country", str(occurrence_point.country_code))
                 feature.SetField("CrossCheck", int(occurrence_point.cross_check))
 
+                # Create the WKT for the feature using python string formatting
+                wkt = "POINT(%f %f)" % (float(longitude), float(latitude))
+
+                # Create the point from the Well Know Txt
+                point = ogr.CreateGeometryFromWkt(wkt)
+
                 # Set the feature geometry using the point
-                feature.SetGeometry(point_object)
+                feature.SetGeometry(point)
                 # Create the feature in the layer (shapefile)
                 layer.CreateFeature(feature)
                 # Destroy the feature to free resources
