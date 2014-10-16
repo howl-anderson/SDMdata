@@ -39,10 +39,15 @@ def export_data(target_dir, output_format="csv", country_list=None, output_type=
                 csv_writer.writerow([longitude, latitude, occurrence_point.cross_check])
             fd.close()
         elif output_format == "shp":
-            driver = ogr.GetDriverByName("ESRI Shapefile")
+            output_dir = os.path.join(target_dir, species_name)
+            if not os.path.isdir(output_dir):
+                os.mkdir(output_dir)
 
             # create the data source
-            output_file = os.path.join(target_dir, species_name + ".shp")
+            output_file = os.path.join(output_dir, "presence.shp")
+
+            driver = ogr.GetDriverByName("ESRI Shapefile")
+
             data_source = driver.CreateDataSource(output_file)
 
             # create the spatial reference, WGS84
