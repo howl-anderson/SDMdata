@@ -84,7 +84,13 @@ def export_data(target_dir, output_format="csv", country_list=None, output_type=
                 print str(occurrence_point.species_name)
                 feature.SetField("Species", str(occurrence_point.species_name))
                 feature.SetField("Country", str(occurrence_point.country_code))
-                feature.SetField("CrossCheck", int(occurrence_point.cross_check))
+
+                if occurrence_point.cross_check is None:
+                    # TODO: In case of cross check is not finished
+                    cross_check = -3
+                else:
+                    cross_check = int(occurrence_point.cross_check)
+                feature.SetField("CrossCheck", cross_check)
 
                 # Create the WKT for the feature using python string formatting
                 wkt = "POINT(%f %f)" % (float(longitude), float(latitude))
