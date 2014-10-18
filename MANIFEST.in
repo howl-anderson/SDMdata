@@ -1,8 +1,0 @@
-recursive-include sdmdata/templates *
-recursive-include sdmdata/static *
-recursive-include sdmdata/gadm *
-recursive-include sdmdata/output-csv *
-recursive-include sdmdata/output-shp *
-recursive-include sdmdata/sdmdata *
-recursive-include sdmdata/un-occurrence-data *
-recursive-include sdmdata/workspace *
