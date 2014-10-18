@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import atexit
+import psutil
 from signal import SIGTERM
 
 
@@ -65,7 +66,7 @@ class Daemon:
         os.dup2(se.fileno(), sys.stderr.fileno())
 
         # register a function to remove pdf file when process exit
-        atexit.register(self.delete_pid)
+        atexit.register(self.when_exit)
         pid = str(os.getpid())
 
         # write pid
@@ -75,6 +76,16 @@ class Daemon:
 
     def delete_pid(self):
         os.remove(self.pid_file)
+
+    def when_exit(self):
+        self.delete_pid()
+        self.kill_process_tree()
+
+    def kill_process_tree(self):
+        pid = os.getpid()
+        parent = psutil.Process(pid)
+        for child in parent.children(recursive=True):
+            child.kill()
 
     def start(self):
         """

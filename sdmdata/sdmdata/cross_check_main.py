@@ -4,9 +4,13 @@
 import os
 from osgeo import ogr
 
+
 from iso3166 import countries
 from db import Occurrence
 from db import create_session
+
+# TODO: write this to other gdal script
+ogr.UseExceptions()
 
 
 def cross_check(work_dir="."):
@@ -27,9 +31,6 @@ def cross_check(work_dir="."):
         feature_dir[feature_name] = feature
 
     occurrence_list = session.query(Occurrence).filter(Occurrence.cross_check == None).all()
-    correct_record = []
-    wrong_record = []
-    country_wrong_record = []
 
     for item in occurrence_list:
         oid = item.id
@@ -39,36 +40,36 @@ def cross_check(work_dir="."):
         point = ogr.Geometry(ogr.wkbPoint)
         point.AddPoint(longitude, latitude)
 
-        # Create polygon
-        try:
-            country_data = countries.get(country_code)
-            country_code = country_data[2]
-            poly = feature_dir[country_code]
-            poly = poly.geometry()
-        except KeyError:
-            session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -1},
+        if country_code is None:
+            session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -3},
                                                                           synchronize_session=False)
             session.commit()
-            country_wrong_record.append(oid)
             continue
-        except:
-            # TODO: here need some help: the exception
+        elif country_code in countries:
+            country_data_alpha_3 = countries.get(country_code)[2]
+            if country_data_alpha_3 in feature_dir.keys():
+                poly = feature_dir[country_data_alpha_3]
+                poly = poly.geometry()
+            else:
+                session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -1},
+                                                                              synchronize_session=False)
+                session.commit()
+                continue
+        else:
             session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": -2},
                                                                           synchronize_session=False)
             session.commit()
-            country_wrong_record.append(oid)
             continue
 
         intersection = poly.Intersects(point)
+
         # print(intersection)
         if intersection:
             session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": 1}, synchronize_session=False)
             session.commit()
-            correct_record.append(oid)
         else:
             session.query(Occurrence).filter(Occurrence.id == oid).update({"cross_check": 0}, synchronize_session=False)
             session.commit()
-            wrong_record.append(oid)
 
     session.close()
-    return correct_record, wrong_record, country_wrong_record
+    return None

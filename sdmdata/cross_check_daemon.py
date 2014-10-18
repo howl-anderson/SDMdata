@@ -4,7 +4,8 @@
 import sys
 import os
 from sdmdata.worker_daemon import Daemon
-from sdmdata.cross_check_main import cross_check
+#from sdmdata.cross_check_main import cross_check
+from sdmdata.cross_check_mutilprocess import cross_check
 
 
 class MyDaemon(Daemon):
