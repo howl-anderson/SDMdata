@@ -18,9 +18,10 @@ else:
     multiprocess_flag = True
 
 if multiprocess_flag:
-    from sdmdata.cross_check_main import cross_check
-else:
     from sdmdata.cross_check_multiprocess import cross_check
+else:
+    from sdmdata.cross_check_main import cross_check
+
 
 
 class MyDaemon(Daemon):
