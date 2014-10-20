@@ -6,7 +6,7 @@ import sys
 import time
 import atexit
 import psutil
-from signal import SIGTERM
+import signal
 
 
 class Daemon:
@@ -27,6 +27,10 @@ class Daemon:
         self.stdout = stdout
         self.stderr = stderr
         self.pid_file = pidfile
+
+    def signal_handler(self, signal, frame):
+        print('Received signal to exit!')
+        sys.exit(0)
 
     def _daemonize(self):
         # fork from original process
@@ -67,9 +71,12 @@ class Daemon:
 
         # register a function to remove pdf file when process exit
         atexit.register(self.when_exit)
-        pid = str(os.getpid())
+
+        # register signal process function
+        signal.signal(signal.SIGTERM, self.signal_handler)
 
         # write pid
+        pid = str(os.getpid())
         fd = file(self.pid_file, 'w+')
         fd.write("%s\n" % pid)
         fd.close()
@@ -85,7 +92,7 @@ class Daemon:
         pid = os.getpid()
         parent = psutil.Process(pid)
         for child in parent.children(recursive=True):
-            child.kill()
+            child.terminate()
 
     def start(self):
         """
@@ -125,7 +132,7 @@ class Daemon:
         # Try killing the daemon process
         try:
             while 1:
-                os.kill(pid, SIGTERM)
+                os.kill(pid, signal.SIGTERM)
                 time.sleep(0.1)
         except OSError, err:
             err = str(err)

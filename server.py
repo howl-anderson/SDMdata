@@ -63,7 +63,7 @@ def stop():
     fd = open(pid_file, "r")
     pid = fd.read()
     fd.close()
-    command_string = "kill -9 %s" % pid
+    command_string = "kill -15 %s" % pid
     process_obj = subprocess.Popen(command_string, shell=True)
     return_code = process_obj.wait()
     if not return_code:

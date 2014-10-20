@@ -1,12 +1,24 @@
+#!/usr/bin/env python
+
 from iso3166 import countries
 from osgeo import ogr
 from db import Occurrence
 from db import create_session
 import os
 import Queue
+import signal
+import sys
+
+
+def signal_handler(self, signal, frame):
+    print('Received signal to exit!')
+    sys.exit(0)
 
 
 def worker(queue, work_dir):
+    # register signal process function
+    signal.signal(signal.SIGTERM, signal_handler)
+
     session = create_session()
     feature_dict = {}
 
