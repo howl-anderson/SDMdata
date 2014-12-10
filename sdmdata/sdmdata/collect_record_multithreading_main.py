@@ -70,7 +70,7 @@ def check_species_data():
         work_data = [species_name, species_key]
         work_queue.put(work_data)
 
-    #wait on the queue until everything has been processed
+    # wait on the queue until everything has been processed
     work_queue.join()
 
     return None

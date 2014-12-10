@@ -85,6 +85,7 @@ def create_session():
     species_session = session_object()
     return species_session
 
+
 def create_connect():
     db_source = DATABASE_HOST_URI
     engine = create_engine(db_source, encoding="utf-8", echo=False)

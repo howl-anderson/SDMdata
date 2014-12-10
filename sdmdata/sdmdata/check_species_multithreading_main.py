@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*-coding:utf-8-*-
+# -*- coding:utf-8 -*-
 # TODO: not finished, may remove
 
 import Queue
@@ -62,7 +62,7 @@ def check_species_data():
         species_name = species_obj.species_name
         work_queue.put(species_name)
 
-    #wait on the queue until everything has been processed
+    # wait on the queue until everything has been processed
     work_queue.join()
 
     return None

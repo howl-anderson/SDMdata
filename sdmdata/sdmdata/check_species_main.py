@@ -16,7 +16,7 @@ def check_species_data():
         species_data = species_match(species_name)
         species_obj = session.query(Species).filter(Species.species_name == species_name).one()
 
-        if not "speciesKey" in species_data.keys():
+        if "speciesKey" not in species_data.keys():
             species_obj.name_correct = False
             session.commit()
             continue
