@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
-# import build in library
+# import build-in library
 import os
 import sys
 import subprocess
@@ -12,10 +12,10 @@ parser = ArgumentParser(description="Control SDMdata server")
 sub = parser.add_subparsers(dest='action')
 sp1 = sub.add_parser('start')
 sp2 = sub.add_parser('stop')
-sp3 = sub.add_parser('list')
 args = parser.parse_args()
 
-project_path = "./sdmdata"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_path = os.path.join(current_dir, "sdmdata")
 
 # TODO: pid_file need to be cross platform
 pid_file = "/var/lock/sdmdata"
@@ -48,10 +48,9 @@ def start():
     return_code = process_obj.wait()
     if not return_code:
         print("Server work on %s:%s" % (server_host, server_port))
-        print("Success")
         sys.exit()
     else:
-        print("Failed")
+        print("Server start failed!")
 
 
 def stop():
@@ -59,7 +58,8 @@ def stop():
     if not (os.path.exists(pid_file) and os.path.isfile(pid_file)):
         print("Failed: It seems there no pid file, are you sure server still running?")
         sys.exit()
-    print("Stop server")
+
+    print("Stop server ...")
     fd = open(pid_file, "r")
     pid = fd.read()
     fd.close()
@@ -68,9 +68,9 @@ def stop():
     return_code = process_obj.wait()
     if not return_code:
         os.unlink(pid_file)
-        print("Success")
+        print("Stop server successful!")
     else:
-        print("Failed")
+        print("Stop server failed!")
 
 if __name__ == "__main__":
     main()

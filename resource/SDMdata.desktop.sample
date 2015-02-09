@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=0.1
+Type=Application
+Encoding=UTF-8
+Name=SDMdata
+Comment=SDMdata entry point
+Exec=firefox http://127.0.0.1:8000
+Icon=/home/demo_user/SDMdata/icon.png
+Terminal=false
+Categories=Utility;Application;
+
+

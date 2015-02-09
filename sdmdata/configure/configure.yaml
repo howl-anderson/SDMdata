@@ -1,0 +1,5 @@
+DEBUG: true
+SECRET_KEY: s2ek42dwo4k2dw
+
+DATABASE_HOST_URI: mysql://root:123456@localhost:3306
+DATABASE_DATA_URI: /sdmdata?charset=utf8

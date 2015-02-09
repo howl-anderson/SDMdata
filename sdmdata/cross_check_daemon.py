@@ -5,22 +5,22 @@ import sys
 import os
 import multiprocessing
 
-from sdmdata.worker_daemon import Daemon
+from lib.worker_daemon import Daemon
 
 cpu_core_count = multiprocessing.cpu_count()
 
 if cpu_core_count is None:
     multiprocess_flag = False
 elif cpu_core_count < 4:
-    # if cpu core less than 4, we don't do multiprocess
+    # If cpu core less than 4, we don't do multiprocess
     multiprocess_flag = False
 else:
     multiprocess_flag = True
 
 if multiprocess_flag:
-    from sdmdata.cross_check_multiprocess import cross_check
+    from lib.cross_check_multiprocess import cross_check
 else:
-    from sdmdata.cross_check_main import cross_check
+    from lib.cross_check_main import cross_check
 
 
 class MyDaemon(Daemon):

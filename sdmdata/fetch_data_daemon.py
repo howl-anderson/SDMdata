@@ -3,8 +3,8 @@
 
 import sys
 import os
-from sdmdata.worker_daemon import Daemon
-from sdmdata.collect_record_main import collect_record_data
+from lib.worker_daemon import Daemon
+from lib.collect_record_main import collect_record_data
 
 
 class MyDaemon(Daemon):

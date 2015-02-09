@@ -4,7 +4,6 @@
 # import build-in library
 import os
 import json
-import shutil
 import hashlib
 import subprocess
 import logging
@@ -33,29 +32,45 @@ from flask.ext.login import login_required
 from flask.ext.login import current_user
 
 # import self build library
-from sdmdata.db import Occurrence
-from sdmdata.db import Species
-from sdmdata.db import User
-from sdmdata.db import State
-from sdmdata.db import create_session
+from lib.db import Occurrence
+from lib.db import Species
+from lib.db import User
+from lib.db import State
+from lib.db import create_session
 
 # import database library
 from sqlalchemy.orm.exc import NoResultFound
 
-import app_config
+from lib import app_config
 
-# create our little application :)
+# create application
 app = Flask(__name__)
 app.config.from_object(app_config)
 app.debug = True
+
 # TODO: log file
-handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
+http_server_log_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'log/http_server.log')
+handler = RotatingFileHandler(http_server_log_file)
+formatter = logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+if app.debug:
+    handler.setLevel(logging.DEBUG)
+else:
+    handler.setLevel(logging.INFO)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.DEBUG)
+log.addHandler(handler)
+
+app_server_log_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'log/app_server.log')
+handler = RotatingFileHandler(app_server_log_file)
+formatter = logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
 if app.debug:
     handler.setLevel(logging.DEBUG)
 else:
     handler.setLevel(logging.INFO)
 app.logger.addHandler(handler)
-# app.config.from_object(__name__)
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -246,7 +261,7 @@ def import_species_csv():
 @app.route("/import-species-csv-result")
 @login_required
 def import_species_csv_result():
-    from sdmdata.import_species_csv import import_species_csv
+    from lib.import_species_csv import import_species_csv
 
     work_dir = os.path.join(".", "workspace")
     csv_file = os.path.join(work_dir, "data.csv")
@@ -319,7 +334,6 @@ def do_empty_species_list():
 @app.route("/check-species-name")
 @login_required
 def check_species_name():
-    import subprocess
 
     subprocess.Popen(["./check_species_name_daemon.py", "start"])
     return render_template('check-species-name/result.html')
@@ -801,7 +815,7 @@ def download():
 
     temp_dir = tempfile.mkdtemp()
 
-    from sdmdata.export_data_main import export_data
+    from lib.export_data_main import export_data
 
     print(temp_dir, output_format, country_list, output_type)
 
