@@ -10,14 +10,13 @@ Date: 2015-1-25
 User can download the source code from <https://github.com/howl-anderson/SDMdata>.
 ## System require
 ### Linux
-SDMdata is development under Linux operation system (for more specific "ubuntu"), so the install instruction is very detail. This instruction mainly guide user how intall SDMdata into ubuntu. For other system user, see follow section.
+SDMdata is developed under Linux operation system (for more specific "ubuntu"). This instruction mainly guide user how  to intall SDMdata into ubuntu. For other system user, see following section.
 ### UNIX
-Simllar with Linux, see Linux install progress for review.
+Simliar with Linux, see Linux install progress for review.
 ### Mac OS X
-Due we don't have any Mac OS X device, so we cannot test SDMdata on this system. But Mac OS X was consider quite like UNIX and Linux system. Their share a lot of common library. so SDMdata can install on Mac OS X just like ubuntu but some different operation.
+Because we do not have any Mac OS X device, we can not test SDMdata on this system. But Mac OS X was quite like UNIX and Linux system. They have shared a lot of common library. SDMdata can be installed on Mac OS X just like ubuntu, but it may be have some different operation.
 ### Windows
-For those user who use Windows system, we feel sorry that SDMdata currently not support Windows yet for some technical reason. If user still want use SDMdata on Windows, we think use a virtual machine is a good choice. We make an independ document on how install SDMdata through virutal machine step by step. see <document/install/windows/install.pdf>
-
+For those user who use Windows system, we feel sorry that SDMdata currently do not support Windows yet for some technical reason. If user still want to use SDMdata on Windows, we think it may be a good choice to use virtual machine. We have made an independent document on how to install SDMdata through virtual machine step by step. Please see <document/install/windows/install.pdf>
 ## Software require
 SDMdata was written in python language and use several library that default may not be installed in operating system. For technical and convenient reason, we do not recommend user check depend relationship by yourself. We have provide a script to check depend relationship. If something is missing, the script will do that for you. Currently we add a script to help user install software in Ubuntu system. Helper script for other linux distribution, Mac OS X or UNIX operating system currently is lacked. In the `install` directory of SDMdata, there is a file named `ubuntu.sh` and run a terminal and type command:
 
