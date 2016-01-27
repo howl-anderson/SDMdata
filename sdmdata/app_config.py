@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from datetime import timedelta
-from sdmdata.db_config import DATABASE_URI
+from .sdmdata.db_config import DATABASE_URI
 
 DEBUG = True
 SECRET_KEY = 's2ek42dwo4k2dw'

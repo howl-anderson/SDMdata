@@ -6,8 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from db_config import DATABASE_URI
-from db_config import DATABASE_HOST_URI
+from .db_config import DATABASE_URI
+from .db_config import DATABASE_HOST_URI
 
 database_base = declarative_base()
 

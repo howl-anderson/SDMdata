@@ -32,16 +32,18 @@ from flask.ext.login import login_required
 from flask.ext.login import current_user
 
 # import self build library
-from lib.db import Occurrence
-from lib.db import Species
-from lib.db import User
-from lib.db import State
-from lib.db import create_session
+from .lib.db import Occurrence
+from .lib.db import Species
+from .lib.db import User
+from .lib.db import State
+from .lib.db import create_session
+
+from .lib.export_data_main import export_data
 
 # import database library
 from sqlalchemy.orm.exc import NoResultFound
 
-from lib import app_config
+from .lib import app_config
 
 # create application
 app = Flask(__name__)
@@ -815,7 +817,7 @@ def download():
 
     temp_dir = tempfile.mkdtemp()
 
-    from lib.export_data_main import export_data
+
 
     print(temp_dir, output_format, country_list, output_type)
 

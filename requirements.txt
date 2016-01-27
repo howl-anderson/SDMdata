@@ -1,0 +1,8 @@
+
+tablib
+flask
+flask-login
+sqlalchemy
+iso3166
+gunicorn
+psutil

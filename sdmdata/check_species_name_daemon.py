@@ -3,8 +3,8 @@
 
 import sys
 import os
-from lib.worker_daemon import Daemon
-from lib.check_species_main import check_species_data
+from .lib.worker_daemon import Daemon
+from .lib.check_species_main import check_species_data
 
 
 class MyDaemon(Daemon):

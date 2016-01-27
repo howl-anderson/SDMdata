@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*-coding:utf-8-*-
 
-from species_match import species_match
+from .species_match import species_match
 
-from db import Species
-from db import create_session
-import Exceptions
+from .db import Species
+from .db import create_session
+from . import Exceptions
 
 
 def check_species_data():
